@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MoviesModule } from './movies/movies.module';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MoviesModule } from './movies/movies.module';
       autoLoadEntities: true,
       synchronize: true, // this is for development only
     }),
+    CategoriesModule,
   ],
   controllers: [],
   providers: [],

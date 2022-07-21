@@ -20,11 +20,14 @@ export class CreateMovieDto {
   @IsDateString()
   releaseDate: string;
 
-  @IsNumber({ maxDecimalPlaces: 0 })
+  @IsNumber({ maxDecimalPlaces: 1 })
   @Min(0)
-  @Max(5)
+  @Max(10)
   rating: number;
 
   @IsUrl()
   imageUrl: string;
+
+  @IsString({ each: true })
+  categories: string[];
 }

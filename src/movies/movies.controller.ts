@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entities/movie.entity';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -22,8 +24,8 @@ export class MoviesController {
   }
 
   @Get()
-  findAll(): Promise<Movie[]> {
-    return this.moviesService.findAll();
+  findAll(@Query() pagination: PaginationQueryDto): Promise<Movie[]> {
+    return this.moviesService.findAll(pagination);
   }
 
   @Get(':id')

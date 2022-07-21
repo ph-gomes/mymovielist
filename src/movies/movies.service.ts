@@ -2,6 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Category } from '../categories/entities/category.entity';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entities/movie.entity';
@@ -33,10 +34,12 @@ export class MoviesService {
     return created;
   }
 
-  findAll(): Promise<Movie[]> {
+  findAll({ skip, take }: PaginationQueryDto): Promise<Movie[]> {
     this.logger.log(`Getting all movies`);
     return this.movieRepository.find({
       relations: ['categories'],
+      skip,
+      take,
     });
   }
 

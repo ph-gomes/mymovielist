@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Category } from '../categories/entities/category.entity';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entities/movie.entity';
@@ -12,11 +13,20 @@ export class MoviesService {
   constructor(
     @InjectRepository(Movie)
     private readonly movieRepository: Repository<Movie>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
   ) {}
 
   async create(createMovieDto: CreateMovieDto): Promise<Movie> {
+    const categories = await Promise.all(
+      createMovieDto.categories.map((name) => this.preloadCategoryByName(name)),
+    );
+
     this.logger.log(`Creating a new movie: ${createMovieDto.title}`);
-    const movie = this.movieRepository.create(createMovieDto);
+    const movie = this.movieRepository.create({
+      ...createMovieDto,
+      categories,
+    });
     const created = await this.movieRepository.save(movie);
 
     this.logger.log(`Movie with title ${createMovieDto.title} created`);
@@ -25,12 +35,17 @@ export class MoviesService {
 
   findAll(): Promise<Movie[]> {
     this.logger.log(`Getting all movies`);
-    return this.movieRepository.find();
+    return this.movieRepository.find({
+      relations: ['categories'],
+    });
   }
 
   async findOne(id: string): Promise<Movie> {
     this.logger.log(`Getting a movie: ${id}`);
-    const found = await this.movieRepository.findOne({ where: { id } });
+    const found = await this.movieRepository.findOne({
+      where: { id },
+      relations: ['categories'],
+    });
 
     if (!found) {
       this.logger.log(`Movie with id ${id} not found`);
@@ -43,7 +58,20 @@ export class MoviesService {
 
   async update(id: string, updateMovieDto: UpdateMovieDto): Promise<Movie> {
     this.logger.log(`Updating a movie: ${id}`);
-    const found = await this.movieRepository.preload({ ...updateMovieDto, id });
+
+    const categories =
+      updateMovieDto.categories &&
+      (await Promise.all(
+        updateMovieDto.categories.map((name) =>
+          this.preloadCategoryByName(name),
+        ),
+      ));
+
+    const found = await this.movieRepository.preload({
+      ...updateMovieDto,
+      id,
+      categories,
+    });
 
     if (!found) {
       this.logger.log(`Movie with id ${id} not found`);
@@ -62,5 +90,13 @@ export class MoviesService {
 
     this.logger.log(`Movie with id ${id} removed`);
     return true;
+  }
+
+  private async preloadCategoryByName(name: string): Promise<Category> {
+    const category = await this.categoryRepository.findOne({ where: { name } });
+    if (category) {
+      return category;
+    }
+    return this.categoryRepository.create({ name });
   }
 }

@@ -27,4 +27,7 @@ export class CreateMovieDto {
 
   @IsUrl()
   imageUrl: string;
+
+  @IsString({ each: true })
+  categories: string[];
 }

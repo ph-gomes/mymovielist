@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
 export class Movie {
@@ -19,4 +26,10 @@ export class Movie {
 
   @Column()
   imageUrl: string;
+
+  @JoinTable()
+  @ManyToMany(() => Category, (category) => category.movies, {
+    cascade: true,
+  })
+  categories: Category[];
 }

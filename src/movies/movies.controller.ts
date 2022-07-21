@@ -15,8 +15,18 @@ import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entities/movie.entity';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { ApiKeyGuard } from '../common/guards/api-key.guard';
+import {
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiResponse,
+  ApiSecurity,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @Controller('movies')
+@ApiTags('Movies')
+@ApiSecurity('access-key')
+@ApiForbiddenResponse({ description: 'Forbidden' })
 @UseGuards(ApiKeyGuard)
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
@@ -32,11 +42,13 @@ export class MoviesController {
   }
 
   @Get(':id')
+  @ApiResponse({ status: 404, description: 'Movie not found' })
   findOne(@Param('id') id: string): Promise<Movie> {
     return this.moviesService.findOne(id);
   }
 
   @Patch(':id')
+  @ApiNotFoundResponse({ description: 'Movie not found' })
   update(
     @Param('id') id: string,
     @Body() updateMovieDto: UpdateMovieDto,

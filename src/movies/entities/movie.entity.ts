@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Column,
   Entity,
@@ -9,6 +10,7 @@ import { Category } from '../../categories/entities/category.entity';
 
 @Entity()
 export class Movie {
+  @ApiProperty({ format: 'uuid' })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

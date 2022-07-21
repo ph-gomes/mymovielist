@@ -7,14 +7,17 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { Movie } from './entities/movie.entity';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { ApiKeyGuard } from '../common/guards/api-key.guard';
 
 @Controller('movies')
+@UseGuards(ApiKeyGuard)
 export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
